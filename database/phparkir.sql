@@ -140,7 +140,7 @@ INSERT INTO roles (nama_role) VALUES
 ('Petugas'),
 ('Owner');
 
--- Default Admin User (password: admin123)
+-- Default Users (password: password)
 INSERT INTO users (nama, username, password, role_id, status) VALUES
 ('Administrator', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 'aktif'),
 ('Petugas Parkir', 'petugas', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 'aktif'),
