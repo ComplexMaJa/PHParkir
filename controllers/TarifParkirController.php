@@ -6,7 +6,6 @@
 require_once __DIR__ . '/../helpers/auth.php';
 require_once __DIR__ . '/../helpers/functions.php';
 require_once __DIR__ . '/../models/TarifParkirModel.php';
-require_once __DIR__ . '/../models/KendaraanModel.php';
 
 function handleTarifParkir() {
     requireRole(['Admin']);
@@ -40,22 +39,17 @@ function handleTarifList($model) {
 }
 
 function handleTarifCreate($model) {
-    $kendaraanModel = new KendaraanModel();
-    $kendaraanList = $kendaraanModel->getAllNoPagination();
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
-            'kendaraan_id' => (int)($_POST['kendaraan_id'] ?? 0),
+            'jenis_kendaraan' => $_POST['jenis_kendaraan'] ?? '',
             'tarif_per_jam' => (float)($_POST['tarif_per_jam'] ?? 0),
-            'tarif_flat' => (float)($_POST['tarif_flat'] ?? 0),
-            'deskripsi' => trim($_POST['deskripsi'] ?? ''),
         ];
 
-        if ($data['kendaraan_id'] === 0 || $data['tarif_per_jam'] <= 0) {
-            setFlash('danger', 'Kendaraan dan tarif per jam wajib diisi.');
+        if (empty($data['jenis_kendaraan']) || !in_array($data['jenis_kendaraan'], ['motor', 'mobil', 'lainnya']) || $data['tarif_per_jam'] <= 0) {
+            setFlash('danger', 'Jenis kendaraan dan tarif per jam wajib diisi dengan benar.');
         } else {
             $model->create($data);
-            logActivity(getUserId(), 'CRUD Tarif', 'Menambahkan tarif parkir');
+            logActivity(getUserId(), 'Menambahkan tarif parkir');
             setFlash('success', 'Tarif parkir berhasil ditambahkan.');
             header('Location: index.php?page=tarif_parkir');
             exit;
@@ -78,22 +72,17 @@ function handleTarifEdit($model) {
         exit;
     }
 
-    $kendaraanModel = new KendaraanModel();
-    $kendaraanList = $kendaraanModel->getAllNoPagination();
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
-            'kendaraan_id' => (int)($_POST['kendaraan_id'] ?? 0),
+            'jenis_kendaraan' => $_POST['jenis_kendaraan'] ?? '',
             'tarif_per_jam' => (float)($_POST['tarif_per_jam'] ?? 0),
-            'tarif_flat' => (float)($_POST['tarif_flat'] ?? 0),
-            'deskripsi' => trim($_POST['deskripsi'] ?? ''),
         ];
 
-        if ($data['kendaraan_id'] === 0 || $data['tarif_per_jam'] <= 0) {
-            setFlash('danger', 'Kendaraan dan tarif per jam wajib diisi.');
+        if (empty($data['jenis_kendaraan']) || !in_array($data['jenis_kendaraan'], ['motor', 'mobil', 'lainnya']) || $data['tarif_per_jam'] <= 0) {
+            setFlash('danger', 'Jenis kendaraan dan tarif per jam wajib diisi dengan benar.');
         } else {
             $model->update($id, $data);
-            logActivity(getUserId(), 'CRUD Tarif', 'Mengedit tarif parkir');
+            logActivity(getUserId(), 'Mengedit tarif parkir');
             setFlash('success', 'Tarif parkir berhasil diperbarui.');
             header('Location: index.php?page=tarif_parkir');
             exit;
@@ -112,7 +101,7 @@ function handleTarifDelete($model) {
     if ($tarifData) {
         try {
             $model->delete($id);
-            logActivity(getUserId(), 'CRUD Tarif', 'Menghapus tarif parkir');
+            logActivity(getUserId(), 'Menghapus tarif parkir');
             setFlash('success', 'Tarif parkir berhasil dihapus.');
         } catch (PDOException $e) {
             setFlash('danger', 'Gagal menghapus tarif parkir.');

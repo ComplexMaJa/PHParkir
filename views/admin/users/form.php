@@ -7,33 +7,33 @@
 
 <div class="card">
     <div class="card-body">
-        <form method="POST" action="index.php?page=users&action=<?= $isEdit ? 'edit&id=' . $user['id'] : 'create' ?>">
+        <form method="POST" action="index.php?page=users&action=<?= $isEdit ? 'edit&id=' . $user['id_user'] : 'create' ?>">
             <div class="form-group">
-                <label for="nama">Nama Lengkap *</label>
-                <input type="text" id="nama" name="nama" class="form-control" value="<?= e($isEdit ? $user['nama'] : ($_POST['nama'] ?? '')) ?>" required>
+                <label for="nama_lengkap">Nama Lengkap *</label>
+                <input type="text" id="nama_lengkap" name="nama_lengkap" class="form-control" value="<?= e($isEdit ? $user['nama_lengkap'] : ($_POST['nama_lengkap'] ?? '')) ?>" required maxlength="50">
             </div>
             <div class="form-group">
                 <label for="username">Username *</label>
-                <input type="text" id="username" name="username" class="form-control" value="<?= e($isEdit ? $user['username'] : ($_POST['username'] ?? '')) ?>" required>
+                <input type="text" id="username" name="username" class="form-control" value="<?= e($isEdit ? $user['username'] : ($_POST['username'] ?? '')) ?>" required maxlength="50">
             </div>
             <div class="form-group">
                 <label for="password">Password <?= $isEdit ? '(kosongkan jika tidak diubah)' : '*' ?></label>
                 <input type="password" id="password" name="password" class="form-control" <?= $isEdit ? '' : 'required' ?>>
             </div>
             <div class="form-group">
-                <label for="role_id">Role *</label>
-                <select id="role_id" name="role_id" class="form-control" required>
+                <label for="role">Role *</label>
+                <select id="role" name="role" class="form-control" required>
                     <option value="">-- Pilih Role --</option>
-                    <?php foreach ($roles as $r): ?>
-                    <option value="<?= $r['id'] ?>" <?= ($isEdit && $user['role_id'] == $r['id']) ? 'selected' : '' ?>><?= e($r['nama_role']) ?></option>
-                    <?php endforeach; ?>
+                    <option value="admin" <?= ($isEdit && $user['role'] === 'admin') ? 'selected' : '' ?>>Admin</option>
+                    <option value="petugas" <?= ($isEdit && $user['role'] === 'petugas') ? 'selected' : '' ?>>Petugas</option>
+                    <option value="owner" <?= ($isEdit && $user['role'] === 'owner') ? 'selected' : '' ?>>Owner</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="status">Status</label>
-                <select id="status" name="status" class="form-control">
-                    <option value="aktif" <?= ($isEdit && $user['status'] === 'aktif') ? 'selected' : '' ?>>Aktif</option>
-                    <option value="nonaktif" <?= ($isEdit && $user['status'] === 'nonaktif') ? 'selected' : '' ?>>Nonaktif</option>
+                <label for="status_aktif">Status</label>
+                <select id="status_aktif" name="status_aktif" class="form-control">
+                    <option value="1" <?= ($isEdit && $user['status_aktif'] == 1) ? 'selected' : '' ?>>Aktif</option>
+                    <option value="0" <?= ($isEdit && $user['status_aktif'] == 0) ? 'selected' : '' ?>>Nonaktif</option>
                 </select>
             </div>
             <button type="submit" class="btn btn-primary"><?= $isEdit ? 'Simpan Perubahan' : 'Tambah User' ?></button>

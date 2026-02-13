@@ -45,18 +45,17 @@ function getUserRoleId() {
 
 function login($username, $password) {
     $db = getDB();
-    $stmt = $db->prepare("SELECT u.*, r.nama_role FROM users u JOIN roles r ON u.role_id = r.id WHERE u.username = ? AND u.status = 'aktif' LIMIT 1");
+    $stmt = $db->prepare("SELECT * FROM tb_user WHERE username = ? AND status_aktif = 1 LIMIT 1");
     $stmt->execute([$username]);
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_nama'] = $user['nama'];
+        $_SESSION['user_id'] = $user['id_user'];
+        $_SESSION['user_nama'] = $user['nama_lengkap'];
         $_SESSION['user_username'] = $user['username'];
-        $_SESSION['user_role'] = $user['nama_role'];
-        $_SESSION['user_role_id'] = $user['role_id'];
+        $_SESSION['user_role'] = ucfirst($user['role']);
 
-        logActivity($user['id'], 'Login', 'User ' . $user['username'] . ' berhasil login');
+        logActivity($user['id_user'], 'Login');
         return true;
     }
     return false;
@@ -64,16 +63,15 @@ function login($username, $password) {
 
 function logout() {
     if (isLoggedIn()) {
-        logActivity(getUserId(), 'Logout', 'User ' . getUserName() . ' logout');
+        logActivity(getUserId(), 'Logout');
     }
     session_destroy();
     header('Location: ' . BASE_URL . 'index.php?page=login');
     exit;
 }
 
-function logActivity($userId, $aktivitas, $detail = '') {
+function logActivity($userId, $aktivitas) {
     $db = getDB();
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-    $stmt = $db->prepare("INSERT INTO activity_logs (user_id, aktivitas, detail, ip_address) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$userId, $aktivitas, $detail, $ip]);
+    $stmt = $db->prepare("INSERT INTO tb_log_aktivitas (id_user, aktivitas, waktu_aktivitas) VALUES (?, ?, NOW())");
+    $stmt->execute([$userId, $aktivitas]);
 }

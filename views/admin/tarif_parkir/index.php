@@ -12,25 +12,21 @@
                         <th>No</th>
                         <th>Jenis Kendaraan</th>
                         <th>Tarif/Jam</th>
-                        <th>Tarif Flat</th>
-                        <th>Deskripsi</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($tarifs)): ?>
-                    <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-500);">Belum ada data tarif.</td></tr>
+                    <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-500);">Belum ada data tarif.</td></tr>
                     <?php else: ?>
                     <?php foreach ($tarifs as $i => $t): ?>
                     <tr>
                         <td><?= $pagination['offset'] + $i + 1 ?></td>
-                        <td><strong><?= e($t['jenis_kendaraan']) ?></strong></td>
+                        <td><strong><?= e(ucfirst($t['jenis_kendaraan'])) ?></strong></td>
                         <td><?= formatRupiah($t['tarif_per_jam']) ?></td>
-                        <td><?= formatRupiah($t['tarif_flat']) ?></td>
-                        <td><?= e($t['deskripsi']) ?></td>
                         <td>
-                            <a href="index.php?page=tarif_parkir&action=edit&id=<?= $t['id'] ?>" class="btn btn-info btn-sm">Edit</a>
-                            <a href="index.php?page=tarif_parkir&action=delete&id=<?= $t['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus tarif ini?')">Hapus</a>
+                            <a href="index.php?page=tarif_parkir&action=edit&id=<?= $t['id_tarif'] ?>" class="btn btn-info btn-sm">Edit</a>
+                            <a href="index.php?page=tarif_parkir&action=delete&id=<?= $t['id_tarif'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus tarif ini?')">Hapus</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

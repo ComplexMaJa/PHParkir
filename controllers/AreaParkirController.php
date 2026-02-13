@@ -43,14 +43,13 @@ function handleAreaCreate($model) {
         $data = [
             'nama_area' => trim($_POST['nama_area'] ?? ''),
             'kapasitas' => (int)($_POST['kapasitas'] ?? 0),
-            'status' => $_POST['status'] ?? 'aktif',
         ];
 
         if (empty($data['nama_area']) || $data['kapasitas'] <= 0) {
             setFlash('danger', 'Nama area dan kapasitas wajib diisi.');
         } else {
             $model->create($data);
-            logActivity(getUserId(), 'CRUD Area Parkir', 'Menambahkan area: ' . $data['nama_area']);
+            logActivity(getUserId(), 'Menambahkan area: ' . $data['nama_area']);
             setFlash('success', 'Area parkir berhasil ditambahkan.');
             header('Location: index.php?page=area_parkir');
             exit;
@@ -77,14 +76,13 @@ function handleAreaEdit($model) {
         $data = [
             'nama_area' => trim($_POST['nama_area'] ?? ''),
             'kapasitas' => (int)($_POST['kapasitas'] ?? 0),
-            'status' => $_POST['status'] ?? 'aktif',
         ];
 
         if (empty($data['nama_area']) || $data['kapasitas'] <= 0) {
             setFlash('danger', 'Nama area dan kapasitas wajib diisi.');
         } else {
             $model->update($id, $data);
-            logActivity(getUserId(), 'CRUD Area Parkir', 'Mengedit area: ' . $data['nama_area']);
+            logActivity(getUserId(), 'Mengedit area: ' . $data['nama_area']);
             setFlash('success', 'Area parkir berhasil diperbarui.');
             header('Location: index.php?page=area_parkir');
             exit;
@@ -103,7 +101,7 @@ function handleAreaDelete($model) {
     if ($areaData) {
         try {
             $model->delete($id);
-            logActivity(getUserId(), 'CRUD Area Parkir', 'Menghapus area: ' . $areaData['nama_area']);
+            logActivity(getUserId(), 'Menghapus area: ' . $areaData['nama_area']);
             setFlash('success', 'Area parkir berhasil dihapus.');
         } catch (PDOException $e) {
             setFlash('danger', 'Gagal menghapus. Area masih terkait dengan data transaksi.');

@@ -21,29 +21,31 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Kode</th>
                         <th>Plat Nomor</th>
                         <th>Kendaraan</th>
                         <th>Area</th>
                         <th>Waktu Masuk</th>
                         <th>Waktu Keluar</th>
+                        <th>Durasi</th>
+                        <th>Biaya</th>
                         <th>Status</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($transaksi)): ?>
-                    <tr><td colspan="9" style="text-align:center;padding:32px;color:var(--gray-500);">Belum ada transaksi.</td></tr>
+                    <tr><td colspan="10" style="text-align:center;padding:32px;color:var(--gray-500);">Belum ada transaksi.</td></tr>
                     <?php else: ?>
                     <?php foreach ($transaksi as $i => $t): ?>
                     <tr>
                         <td><?= $pagination['offset'] + $i + 1 ?></td>
-                        <td><code><?= e($t['kode_transaksi']) ?></code></td>
                         <td><strong><?= e($t['plat_nomor']) ?></strong></td>
                         <td><?= e($t['jenis_kendaraan']) ?></td>
                         <td><?= e($t['nama_area']) ?></td>
                         <td><?= formatTanggal($t['waktu_masuk']) ?></td>
                         <td><?= $t['waktu_keluar'] ? formatTanggal($t['waktu_keluar']) : '-' ?></td>
+                        <td><?= $t['durasi_jam'] > 0 ? $t['durasi_jam'] . ' jam' : '-' ?></td>
+                        <td><?= $t['biaya_total'] > 0 ? formatRupiah($t['biaya_total']) : '-' ?></td>
                         <td>
                             <?php if ($t['status'] === 'masuk'): ?>
                                 <span class="badge badge-warning">Masuk</span>
@@ -53,7 +55,7 @@
                         </td>
                         <td>
                             <?php if ($t['status'] === 'keluar'): ?>
-                                <a href="index.php?page=transaksi&action=struk&id=<?= $t['id'] ?>" class="btn btn-info btn-sm">🧾 Struk</a>
+                                <a href="index.php?page=transaksi&action=struk&id=<?= $t['id_transaksi'] ?>" class="btn btn-info btn-sm">🧾 Struk</a>
                             <?php endif; ?>
                         </td>
                     </tr>

@@ -6,6 +6,7 @@
 require_once __DIR__ . '/../helpers/auth.php';
 require_once __DIR__ . '/../helpers/functions.php';
 require_once __DIR__ . '/../models/KendaraanModel.php';
+require_once __DIR__ . '/../models/UserModel.php';
 
 function handleKendaraan() {
     requireRole(['Admin']);
@@ -39,17 +40,22 @@ function handleKendaraanList($model) {
 }
 
 function handleKendaraanCreate($model) {
+    $userModel = new UserModel();
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
+            'plat_nomor' => strtoupper(trim($_POST['plat_nomor'] ?? '')),
             'jenis_kendaraan' => trim($_POST['jenis_kendaraan'] ?? ''),
-            'deskripsi' => trim($_POST['deskripsi'] ?? ''),
+            'warna' => trim($_POST['warna'] ?? ''),
+            'pemilik' => trim($_POST['pemilik'] ?? ''),
+            'id_user' => (int)($_POST['id_user'] ?? 0),
         ];
 
-        if (empty($data['jenis_kendaraan'])) {
-            setFlash('danger', 'Jenis kendaraan wajib diisi.');
+        if (empty($data['plat_nomor']) || empty($data['jenis_kendaraan']) || empty($data['warna']) || empty($data['pemilik']) || $data['id_user'] === 0) {
+            setFlash('danger', 'Semua field wajib diisi.');
         } else {
             $model->create($data);
-            logActivity(getUserId(), 'CRUD Kendaraan', 'Menambahkan kendaraan: ' . $data['jenis_kendaraan']);
+            logActivity(getUserId(), 'Menambahkan kendaraan: ' . $data['plat_nomor']);
             setFlash('success', 'Kendaraan berhasil ditambahkan.');
             header('Location: index.php?page=kendaraan');
             exit;
@@ -72,17 +78,22 @@ function handleKendaraanEdit($model) {
         exit;
     }
 
+    $userModel = new UserModel();
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
+            'plat_nomor' => strtoupper(trim($_POST['plat_nomor'] ?? '')),
             'jenis_kendaraan' => trim($_POST['jenis_kendaraan'] ?? ''),
-            'deskripsi' => trim($_POST['deskripsi'] ?? ''),
+            'warna' => trim($_POST['warna'] ?? ''),
+            'pemilik' => trim($_POST['pemilik'] ?? ''),
+            'id_user' => (int)($_POST['id_user'] ?? 0),
         ];
 
-        if (empty($data['jenis_kendaraan'])) {
-            setFlash('danger', 'Jenis kendaraan wajib diisi.');
+        if (empty($data['plat_nomor']) || empty($data['jenis_kendaraan']) || empty($data['warna']) || empty($data['pemilik']) || $data['id_user'] === 0) {
+            setFlash('danger', 'Semua field wajib diisi.');
         } else {
             $model->update($id, $data);
-            logActivity(getUserId(), 'CRUD Kendaraan', 'Mengedit kendaraan: ' . $data['jenis_kendaraan']);
+            logActivity(getUserId(), 'Mengedit kendaraan: ' . $data['plat_nomor']);
             setFlash('success', 'Kendaraan berhasil diperbarui.');
             header('Location: index.php?page=kendaraan');
             exit;
@@ -101,7 +112,7 @@ function handleKendaraanDelete($model) {
     if ($kendaraanData) {
         try {
             $model->delete($id);
-            logActivity(getUserId(), 'CRUD Kendaraan', 'Menghapus kendaraan: ' . $kendaraanData['jenis_kendaraan']);
+            logActivity(getUserId(), 'Menghapus kendaraan: ' . $kendaraanData['plat_nomor']);
             setFlash('success', 'Kendaraan berhasil dihapus.');
         } catch (PDOException $e) {
             setFlash('danger', 'Gagal menghapus. Data kendaraan masih terkait dengan data lain.');

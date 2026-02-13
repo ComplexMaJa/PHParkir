@@ -26,10 +26,6 @@
     <div class="card-body">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
             <div>
-                <p style="margin:4px 0;color:var(--gray-500);font-size:13px;">Kode Transaksi</p>
-                <p style="margin:0;font-weight:600;"><code><?= e($transaksiData['kode_transaksi']) ?></code></p>
-            </div>
-            <div>
                 <p style="margin:4px 0;color:var(--gray-500);font-size:13px;">Plat Nomor</p>
                 <p style="margin:0;font-weight:600;"><?= e($transaksiData['plat_nomor']) ?></p>
             </div>
@@ -56,7 +52,7 @@
             </div>
         </div>
         <form method="POST" action="index.php?page=transaksi&action=keluar">
-            <input type="hidden" name="transaksi_id" value="<?= $transaksiData['id'] ?>">
+            <input type="hidden" name="transaksi_id" value="<?= $transaksiData['id_transaksi'] ?>">
             <button type="submit" name="proses_keluar" value="1" class="btn btn-danger" style="padding:12px 32px;" onclick="return confirm('Proses kendaraan keluar?')">🔴 Proses Keluar & Hitung Biaya</button>
         </form>
     </div>

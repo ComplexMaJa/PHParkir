@@ -10,156 +10,105 @@ CREATE DATABASE IF NOT EXISTS phparkir
 USE phparkir;
 
 -- --------------------------------------------
--- Table: roles
+-- Table: tb_user
 -- --------------------------------------------
-CREATE TABLE roles (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nama_role VARCHAR(50) NOT NULL UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
--- --------------------------------------------
--- Table: users
--- --------------------------------------------
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nama VARCHAR(100) NOT NULL,
+CREATE TABLE tb_user (
+    id_user INT AUTO_INCREMENT PRIMARY KEY,
+    nama_lengkap VARCHAR(50) NOT NULL,
     username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role_id INT NOT NULL,
-    status ENUM('aktif','nonaktif') DEFAULT 'aktif',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    INDEX idx_users_role (role_id),
-    INDEX idx_users_username (username)
+    password VARCHAR(100) NOT NULL,
+    role ENUM('admin','petugas','owner') NOT NULL,
+    status_aktif TINYINT(1) NOT NULL DEFAULT 1,
+    INDEX idx_user_username (username)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------
--- Table: kendaraan
+-- Table: tb_kendaraan
 -- --------------------------------------------
-CREATE TABLE kendaraan (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    jenis_kendaraan VARCHAR(50) NOT NULL,
-    deskripsi TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_kendaraan_jenis (jenis_kendaraan)
+CREATE TABLE tb_kendaraan (
+    id_kendaraan INT AUTO_INCREMENT PRIMARY KEY,
+    plat_nomor VARCHAR(15) NOT NULL,
+    jenis_kendaraan VARCHAR(20) NOT NULL,
+    warna VARCHAR(20) NOT NULL,
+    pemilik VARCHAR(100) NOT NULL,
+    id_user INT NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES tb_user(id_user) ON DELETE RESTRICT ON UPDATE CASCADE,
+    INDEX idx_kendaraan_plat (plat_nomor),
+    INDEX idx_kendaraan_user (id_user)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------
--- Table: area_parkir
+-- Table: tb_area_parkir
 -- --------------------------------------------
-CREATE TABLE area_parkir (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nama_area VARCHAR(100) NOT NULL,
+CREATE TABLE tb_area_parkir (
+    id_area INT AUTO_INCREMENT PRIMARY KEY,
+    nama_area VARCHAR(50) NOT NULL,
     kapasitas INT NOT NULL DEFAULT 0,
-    terisi INT NOT NULL DEFAULT 0,
-    status ENUM('aktif','nonaktif') DEFAULT 'aktif',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_area_status (status)
+    terisi INT NOT NULL DEFAULT 0
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------
--- Table: tarif_parkir
+-- Table: tb_tarif
 -- --------------------------------------------
-CREATE TABLE tarif_parkir (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    kendaraan_id INT NOT NULL,
-    tarif_per_jam DECIMAL(10,2) NOT NULL DEFAULT 0,
-    tarif_flat DECIMAL(10,2) NOT NULL DEFAULT 0,
-    deskripsi TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (kendaraan_id) REFERENCES kendaraan(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    INDEX idx_tarif_kendaraan (kendaraan_id)
+CREATE TABLE tb_tarif (
+    id_tarif INT AUTO_INCREMENT PRIMARY KEY,
+    jenis_kendaraan ENUM('motor','mobil','lainnya') NOT NULL,
+    tarif_per_jam DECIMAL(10,0) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------
--- Table: transaksi
+-- Table: tb_transaksi
 -- --------------------------------------------
-CREATE TABLE transaksi (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    kode_transaksi VARCHAR(50) NOT NULL UNIQUE,
-    plat_nomor VARCHAR(20) NOT NULL,
-    kendaraan_id INT NOT NULL,
-    area_parkir_id INT NOT NULL,
-    user_id INT NOT NULL,
+CREATE TABLE tb_transaksi (
+    id_transaksi INT AUTO_INCREMENT PRIMARY KEY,
+    id_kendaraan INT NOT NULL,
     waktu_masuk DATETIME NOT NULL,
     waktu_keluar DATETIME DEFAULT NULL,
+    id_tarif INT NOT NULL,
+    durasi_jam INT NOT NULL DEFAULT 0,
+    biaya_total DECIMAL(10,0) NOT NULL DEFAULT 0,
     status ENUM('masuk','keluar') DEFAULT 'masuk',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (kendaraan_id) REFERENCES kendaraan(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (area_parkir_id) REFERENCES area_parkir(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    INDEX idx_transaksi_kode (kode_transaksi),
-    INDEX idx_transaksi_plat (plat_nomor),
+    id_user INT NOT NULL,
+    id_area INT NOT NULL,
+    FOREIGN KEY (id_kendaraan) REFERENCES tb_kendaraan(id_kendaraan) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (id_tarif) REFERENCES tb_tarif(id_tarif) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (id_user) REFERENCES tb_user(id_user) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (id_area) REFERENCES tb_area_parkir(id_area) ON DELETE RESTRICT ON UPDATE CASCADE,
     INDEX idx_transaksi_status (status),
     INDEX idx_transaksi_waktu (waktu_masuk, waktu_keluar)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------
--- Table: detail_transaksi
+-- Table: tb_log_aktivitas
 -- --------------------------------------------
-CREATE TABLE detail_transaksi (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    transaksi_id INT NOT NULL,
-    durasi_jam DECIMAL(10,2) NOT NULL DEFAULT 0,
-    tarif_per_jam DECIMAL(10,2) NOT NULL DEFAULT 0,
-    tarif_flat DECIMAL(10,2) NOT NULL DEFAULT 0,
-    total_biaya DECIMAL(10,2) NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (transaksi_id) REFERENCES transaksi(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    INDEX idx_detail_transaksi (transaksi_id)
-) ENGINE=InnoDB;
-
--- --------------------------------------------
--- Table: activity_logs
--- --------------------------------------------
-CREATE TABLE activity_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT DEFAULT NULL,
-    aktivitas VARCHAR(255) NOT NULL,
-    detail TEXT,
-    ip_address VARCHAR(45) DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE,
-    INDEX idx_logs_user (user_id),
-    INDEX idx_logs_created (created_at)
+CREATE TABLE tb_log_aktivitas (
+    id_log INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT DEFAULT NULL,
+    aktivitas VARCHAR(100) NOT NULL,
+    waktu_aktivitas DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES tb_user(id_user) ON DELETE SET NULL ON UPDATE CASCADE,
+    INDEX idx_log_user (id_user),
+    INDEX idx_log_waktu (waktu_aktivitas)
 ) ENGINE=InnoDB;
 
 -- ============================================
 -- SEED DATA
 -- ============================================
 
--- Roles
-INSERT INTO roles (nama_role) VALUES
-('Admin'),
-('Petugas'),
-('Owner');
-
 -- Default Users (password: password)
-INSERT INTO users (nama, username, password, role_id, status) VALUES
-('Administrator', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 'aktif'),
-('Petugas Parkir', 'petugas', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2, 'aktif'),
-('Owner Parkir', 'owner', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 3, 'aktif');
-
--- Jenis Kendaraan
-INSERT INTO kendaraan (jenis_kendaraan, deskripsi) VALUES
-('Motor', 'Kendaraan roda dua'),
-('Mobil', 'Kendaraan roda empat'),
-('Truk', 'Kendaraan besar / angkutan');
+INSERT INTO tb_user (nama_lengkap, username, password, role, status_aktif) VALUES
+('Administrator', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 1),
+('Petugas Parkir', 'petugas', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'petugas', 1),
+('Owner Parkir', 'owner', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 1);
 
 -- Area Parkir
-INSERT INTO area_parkir (nama_area, kapasitas, terisi, status) VALUES
-('Area A - Utama', 50, 0, 'aktif'),
-('Area B - Belakang', 30, 0, 'aktif'),
-('Area C - VIP', 20, 0, 'aktif');
+INSERT INTO tb_area_parkir (nama_area, kapasitas, terisi) VALUES
+('Area A - Utama', 50, 0),
+('Area B - Belakang', 30, 0),
+('Area C - VIP', 20, 0);
 
--- Tarif Parkir
-INSERT INTO tarif_parkir (kendaraan_id, tarif_per_jam, tarif_flat, deskripsi) VALUES
-(1, 2000.00, 1000.00, 'Tarif parkir motor'),
-(2, 5000.00, 3000.00, 'Tarif parkir mobil'),
-(3, 10000.00, 5000.00, 'Tarif parkir truk');
+-- Tarif
+INSERT INTO tb_tarif (jenis_kendaraan, tarif_per_jam) VALUES
+('motor', 2000),
+('mobil', 5000),
+('lainnya', 10000);

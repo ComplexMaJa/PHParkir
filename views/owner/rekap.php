@@ -89,7 +89,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Kode</th>
+                        <th>ID</th>
                         <th>Plat Nomor</th>
                         <th>Kendaraan</th>
                         <th>Area</th>
@@ -106,14 +106,14 @@
                     <?php foreach ($rekap as $i => $r): ?>
                     <tr>
                         <td><?= $i + 1 ?></td>
-                        <td><code><?= e($r['kode_transaksi']) ?></code></td>
+                        <td><code>#<?= $r['id_transaksi'] ?></code></td>
                         <td><strong><?= e($r['plat_nomor']) ?></strong></td>
                         <td><?= e($r['jenis_kendaraan']) ?></td>
                         <td><?= e($r['nama_area']) ?></td>
                         <td><?= formatTanggal($r['waktu_masuk']) ?></td>
                         <td><?= formatTanggal($r['waktu_keluar']) ?></td>
                         <td><?= $r['durasi_jam'] ? $r['durasi_jam'] . ' jam' : '-' ?></td>
-                        <td><strong><?= $r['total_biaya'] ? formatRupiah($r['total_biaya']) : '-' ?></strong></td>
+                        <td><strong><?= $r['biaya_total'] ? formatRupiah($r['biaya_total']) : '-' ?></strong></td>
                     </tr>
                     <?php endforeach; ?>
                     <?php endif; ?>
