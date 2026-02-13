@@ -39,25 +39,25 @@ function handleUserList($model) {
 }
 
 function handleUserCreate($model) {
-    $roles = $model->getRoles();
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
-            'nama' => trim($_POST['nama'] ?? ''),
+            'nama_lengkap' => trim($_POST['nama_lengkap'] ?? ''),
             'username' => trim($_POST['username'] ?? ''),
             'password' => $_POST['password'] ?? '',
-            'role_id' => (int)($_POST['role_id'] ?? 0),
-            'status' => $_POST['status'] ?? 'aktif',
+            'role' => $_POST['role'] ?? '',
+            'status_aktif' => (int)($_POST['status_aktif'] ?? 1),
         ];
 
         // Validation
-        if (empty($data['nama']) || empty($data['username']) || empty($data['password']) || $data['role_id'] === 0) {
+        if (empty($data['nama_lengkap']) || empty($data['username']) || empty($data['password']) || empty($data['role'])) {
             setFlash('danger', 'Semua field wajib diisi.');
+        } elseif (!in_array($data['role'], ['admin', 'petugas', 'owner'])) {
+            setFlash('danger', 'Role tidak valid.');
         } elseif ($model->usernameExists($data['username'])) {
             setFlash('danger', 'Username sudah digunakan.');
         } else {
             $model->create($data);
-            logActivity(getUserId(), 'CRUD User', 'Menambahkan user: ' . $data['username']);
+            logActivity(getUserId(), 'Menambahkan user: ' . $data['username']);
             setFlash('success', 'User berhasil ditambahkan.');
             header('Location: index.php?page=users');
             exit;
@@ -79,24 +79,24 @@ function handleUserEdit($model) {
         exit;
     }
 
-    $roles = $model->getRoles();
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
-            'nama' => trim($_POST['nama'] ?? ''),
+            'nama_lengkap' => trim($_POST['nama_lengkap'] ?? ''),
             'username' => trim($_POST['username'] ?? ''),
             'password' => $_POST['password'] ?? '',
-            'role_id' => (int)($_POST['role_id'] ?? 0),
-            'status' => $_POST['status'] ?? 'aktif',
+            'role' => $_POST['role'] ?? '',
+            'status_aktif' => (int)($_POST['status_aktif'] ?? 1),
         ];
 
-        if (empty($data['nama']) || empty($data['username']) || $data['role_id'] === 0) {
+        if (empty($data['nama_lengkap']) || empty($data['username']) || empty($data['role'])) {
             setFlash('danger', 'Nama, username, dan role wajib diisi.');
+        } elseif (!in_array($data['role'], ['admin', 'petugas', 'owner'])) {
+            setFlash('danger', 'Role tidak valid.');
         } elseif ($model->usernameExists($data['username'], $id)) {
             setFlash('danger', 'Username sudah digunakan.');
         } else {
             $model->update($id, $data);
-            logActivity(getUserId(), 'CRUD User', 'Mengedit user: ' . $data['username']);
+            logActivity(getUserId(), 'Mengedit user: ' . $data['username']);
             setFlash('success', 'User berhasil diperbarui.');
             header('Location: index.php?page=users');
             exit;
@@ -118,7 +118,7 @@ function handleUserDelete($model) {
         if ($user) {
             try {
                 $model->delete($id);
-                logActivity(getUserId(), 'CRUD User', 'Menghapus user: ' . $user['username']);
+                logActivity(getUserId(), 'Menghapus user: ' . $user['username']);
                 setFlash('success', 'User berhasil dihapus.');
             } catch (PDOException $e) {
                 setFlash('danger', 'Gagal menghapus user. User mungkin masih terkait dengan data lain.');

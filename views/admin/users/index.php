@@ -24,20 +24,20 @@
                     <?php foreach ($users as $i => $u): ?>
                     <tr>
                         <td><?= $pagination['offset'] + $i + 1 ?></td>
-                        <td><?= e($u['nama']) ?></td>
+                        <td><?= e($u['nama_lengkap']) ?></td>
                         <td><strong><?= e($u['username']) ?></strong></td>
-                        <td><span class="badge badge-purple"><?= e($u['nama_role']) ?></span></td>
+                        <td><span class="badge badge-purple"><?= e(ucfirst($u['role'])) ?></span></td>
                         <td>
-                            <?php if ($u['status'] === 'aktif'): ?>
+                            <?php if ($u['status_aktif'] == 1): ?>
                                 <span class="badge badge-success">Aktif</span>
                             <?php else: ?>
                                 <span class="badge badge-danger">Nonaktif</span>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="index.php?page=users&action=edit&id=<?= $u['id'] ?>" class="btn btn-info btn-sm">Edit</a>
-                            <?php if ($u['id'] != getUserId()): ?>
-                            <a href="index.php?page=users&action=delete&id=<?= $u['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus user ini?')">Hapus</a>
+                            <a href="index.php?page=users&action=edit&id=<?= $u['id_user'] ?>" class="btn btn-info btn-sm">Edit</a>
+                            <?php if ($u['id_user'] != getUserId()): ?>
+                            <a href="index.php?page=users&action=delete&id=<?= $u['id_user'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus user ini?')">Hapus</a>
                             <?php endif; ?>
                         </td>
                     </tr>

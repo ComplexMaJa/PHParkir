@@ -1,5 +1,5 @@
 <div class="card-header" style="border:none;padding:0;margin-bottom:20px;">
-    <h3>Activity Log</h3>
+    <h3>Log Aktivitas</h3>
 </div>
 
 <div class="card">
@@ -12,22 +12,18 @@
                         <th>Waktu</th>
                         <th>User</th>
                         <th>Aktivitas</th>
-                        <th>Detail</th>
-                        <th>IP Address</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($logs)): ?>
-                    <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-500);">Belum ada activity log.</td></tr>
+                    <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-500);">Belum ada log aktivitas.</td></tr>
                     <?php else: ?>
                     <?php foreach ($logs as $i => $log): ?>
                     <tr>
                         <td><?= $pagination['offset'] + $i + 1 ?></td>
-                        <td><?= formatTanggal($log['created_at']) ?></td>
+                        <td><?= formatTanggal($log['waktu_aktivitas']) ?></td>
                         <td><strong><?= e($log['user_nama'] ?? 'System') ?></strong></td>
                         <td><span class="badge badge-purple"><?= e($log['aktivitas']) ?></span></td>
-                        <td><?= e($log['detail']) ?></td>
-                        <td><code><?= e($log['ip_address']) ?></code></td>
                     </tr>
                     <?php endforeach; ?>
                     <?php endif; ?>

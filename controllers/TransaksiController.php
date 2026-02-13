@@ -45,32 +45,38 @@ function handleTransaksiList() {
 function handleMasuk() {
     $kendaraanModel = new KendaraanModel();
     $areaModel = new AreaParkirModel();
+    $tarifModel = new TarifParkirModel();
     $kendaraanList = $kendaraanModel->getAllNoPagination();
     $areaList = $areaModel->getAllActive();
+    $tarifList = $tarifModel->getAllNoPagination();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $data = [
-            'kode_transaksi' => generateKodeTransaksi(),
-            'plat_nomor' => strtoupper(trim($_POST['plat_nomor'] ?? '')),
-            'kendaraan_id' => (int)($_POST['kendaraan_id'] ?? 0),
-            'area_parkir_id' => (int)($_POST['area_parkir_id'] ?? 0),
-            'user_id' => getUserId(),
-            'waktu_masuk' => date('Y-m-d H:i:s'),
-        ];
+        $idKendaraan = (int)($_POST['id_kendaraan'] ?? 0);
+        $idArea = (int)($_POST['id_area'] ?? 0);
+        $idTarif = (int)($_POST['id_tarif'] ?? 0);
 
-        if (empty($data['plat_nomor']) || $data['kendaraan_id'] === 0 || $data['area_parkir_id'] === 0) {
+        if ($idKendaraan === 0 || $idArea === 0 || $idTarif === 0) {
             setFlash('danger', 'Semua field wajib diisi.');
         } else {
             // Check if area is full
-            $area = $areaModel->getById($data['area_parkir_id']);
+            $area = $areaModel->getById($idArea);
             if ($area && $area['terisi'] >= $area['kapasitas']) {
                 setFlash('danger', 'Area parkir sudah penuh!');
             } else {
+                $data = [
+                    'id_kendaraan' => $idKendaraan,
+                    'waktu_masuk' => date('Y-m-d H:i:s'),
+                    'id_tarif' => $idTarif,
+                    'id_user' => getUserId(),
+                    'id_area' => $idArea,
+                ];
                 $transaksiModel = new TransaksiModel();
                 $transaksiModel->masuk($data);
-                $areaModel->incrementTerisi($data['area_parkir_id']);
-                logActivity(getUserId(), 'Kendaraan Masuk', 'Plat: ' . $data['plat_nomor'] . ' - Kode: ' . $data['kode_transaksi']);
-                setFlash('success', 'Kendaraan berhasil masuk. Kode: ' . $data['kode_transaksi']);
+                $areaModel->incrementTerisi($idArea);
+
+                $kendaraan = $kendaraanModel->getById($idKendaraan);
+                logActivity(getUserId(), 'Kendaraan Masuk: ' . ($kendaraan ? $kendaraan['plat_nomor'] : ''));
+                setFlash('success', 'Kendaraan berhasil masuk.');
                 header('Location: index.php?page=transaksi');
                 exit;
             }
@@ -86,7 +92,6 @@ function handleMasuk() {
 function handleKeluar() {
     $transaksiModel = new TransaksiModel();
     $transaksiData = null;
-    $detailData = null;
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cari_plat'])) {
         $plat = strtoupper(trim($_POST['plat_nomor'] ?? ''));
@@ -107,32 +112,20 @@ function handleKeluar() {
             $waktuMasuk = strtotime($transaksiData['waktu_masuk']);
             $waktuKeluarTs = strtotime($waktuKeluar);
             $durasiDetik = $waktuKeluarTs - $waktuMasuk;
-            $durasiJam = max(1, ceil($durasiDetik / 3600)); // minimum 1 jam
+            $durasiJam = max(1, (int)ceil($durasiDetik / 3600)); // minimum 1 jam
 
             // Get tarif
-            $tarifModel = new TarifParkirModel();
-            $tarif = $tarifModel->getByKendaraanId($transaksiData['kendaraan_id']);
-            $tarifPerJam = $tarif ? (float) $tarif['tarif_per_jam'] : 0;
-            $tarifFlat = $tarif ? (float) $tarif['tarif_flat'] : 0;
-            $totalBiaya = $tarifFlat + ($tarifPerJam * $durasiJam);
+            $tarifPerJam = (float) $transaksiData['tarif_per_jam'];
+            $totalBiaya = $tarifPerJam * $durasiJam;
 
-            // Update transaksi
-            $transaksiModel->keluar($transaksiId, $waktuKeluar);
-
-            // Create detail
-            $transaksiModel->createDetail([
-                'transaksi_id' => $transaksiId,
-                'durasi_jam' => $durasiJam,
-                'tarif_per_jam' => $tarifPerJam,
-                'tarif_flat' => $tarifFlat,
-                'total_biaya' => $totalBiaya,
-            ]);
+            // Update transaksi with duration and cost
+            $transaksiModel->keluar($transaksiId, $waktuKeluar, $durasiJam, $totalBiaya);
 
             // Decrement area
             $areaModel = new AreaParkirModel();
-            $areaModel->decrementTerisi($transaksiData['area_parkir_id']);
+            $areaModel->decrementTerisi($transaksiData['id_area']);
 
-            logActivity(getUserId(), 'Kendaraan Keluar', 'Plat: ' . $transaksiData['plat_nomor'] . ' - Biaya: ' . formatRupiah($totalBiaya));
+            logActivity(getUserId(), 'Kendaraan Keluar: ' . $transaksiData['plat_nomor'] . ' - Biaya: ' . formatRupiah($totalBiaya));
             setFlash('success', 'Kendaraan berhasil keluar. Total biaya: ' . formatRupiah($totalBiaya));
 
             // Redirect to struk
@@ -153,7 +146,6 @@ function handleStruk() {
     $id = (int)($_GET['id'] ?? 0);
     $transaksiModel = new TransaksiModel();
     $transaksiData = $transaksiModel->getById($id);
-    $detailData = $transaksiModel->getDetail($id);
 
     if (!$transaksiData) {
         setFlash('danger', 'Transaksi tidak ditemukan.');

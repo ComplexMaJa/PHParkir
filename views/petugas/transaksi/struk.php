@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Struk Parkir - <?= e($transaksiData['kode_transaksi']) ?></title>
+    <title>Struk Parkir - #<?= $transaksiData['id_transaksi'] ?></title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body style="background:var(--gray-100);padding:24px;">
@@ -22,8 +22,8 @@
 
     <div class="struk-body">
         <div class="struk-row">
-            <span>Kode Transaksi</span>
-            <strong><?= e($transaksiData['kode_transaksi']) ?></strong>
+            <span>ID Transaksi</span>
+            <strong>#<?= $transaksiData['id_transaksi'] ?></strong>
         </div>
         <div class="struk-row">
             <span>Plat Nomor</span>
@@ -32,6 +32,10 @@
         <div class="struk-row">
             <span>Jenis Kendaraan</span>
             <span><?= e($transaksiData['jenis_kendaraan']) ?></span>
+        </div>
+        <div class="struk-row">
+            <span>Warna</span>
+            <span><?= e($transaksiData['warna']) ?></span>
         </div>
         <div class="struk-row">
             <span>Area Parkir</span>
@@ -53,26 +57,22 @@
             <span><?= formatTanggal($transaksiData['waktu_keluar']) ?></span>
         </div>
 
-        <?php if ($detailData): ?>
+        <?php if ($transaksiData['status'] === 'keluar'): ?>
         <div class="struk-row">
             <span>Durasi</span>
-            <span><?= $detailData['durasi_jam'] ?> jam</span>
+            <span><?= $transaksiData['durasi_jam'] ?> jam</span>
         </div>
 
         <div style="border-top:1px dashed var(--gray-300);margin:12px 0;"></div>
 
         <div class="struk-row">
-            <span>Tarif Flat</span>
-            <span><?= formatRupiah($detailData['tarif_flat']) ?></span>
-        </div>
-        <div class="struk-row">
-            <span>Tarif/Jam × <?= $detailData['durasi_jam'] ?></span>
-            <span><?= formatRupiah($detailData['tarif_per_jam'] * $detailData['durasi_jam']) ?></span>
+            <span>Tarif/Jam × <?= $transaksiData['durasi_jam'] ?></span>
+            <span><?= formatRupiah($transaksiData['tarif_per_jam'] * $transaksiData['durasi_jam']) ?></span>
         </div>
 
         <div class="struk-row total">
             <span>TOTAL</span>
-            <span><?= formatRupiah($detailData['total_biaya']) ?></span>
+            <span><?= formatRupiah($transaksiData['biaya_total']) ?></span>
         </div>
         <?php else: ?>
         <div class="struk-row">

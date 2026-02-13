@@ -14,13 +14,12 @@
                         <th>Kapasitas</th>
                         <th>Terisi</th>
                         <th>Sisa</th>
-                        <th>Status</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($areas)): ?>
-                    <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray-500);">Belum ada data area parkir.</td></tr>
+                    <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-500);">Belum ada data area parkir.</td></tr>
                     <?php else: ?>
                     <?php foreach ($areas as $i => $a): ?>
                     <tr>
@@ -30,15 +29,8 @@
                         <td><?= $a['terisi'] ?></td>
                         <td><?= max(0, $a['kapasitas'] - $a['terisi']) ?></td>
                         <td>
-                            <?php if ($a['status'] === 'aktif'): ?>
-                                <span class="badge badge-success">Aktif</span>
-                            <?php else: ?>
-                                <span class="badge badge-danger">Nonaktif</span>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <a href="index.php?page=area_parkir&action=edit&id=<?= $a['id'] ?>" class="btn btn-info btn-sm">Edit</a>
-                            <a href="index.php?page=area_parkir&action=delete&id=<?= $a['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus area ini?')">Hapus</a>
+                            <a href="index.php?page=area_parkir&action=edit&id=<?= $a['id_area'] ?>" class="btn btn-info btn-sm">Edit</a>
+                            <a href="index.php?page=area_parkir&action=delete&id=<?= $a['id_area'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus area ini?')">Hapus</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
