@@ -58,6 +58,10 @@ class UserModel {
         return $stmt->execute([$id]);
     }
 
+    public function getAllNoPagination() {
+        return $this->db->query("SELECT * FROM tb_user ORDER BY nama_lengkap")->fetchAll();
+    }
+
     public function usernameExists($username, $excludeId = null) {
         $sql = "SELECT COUNT(*) FROM tb_user WHERE username = ?";
         $params = [$username];

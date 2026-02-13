@@ -41,6 +41,7 @@ function handleKendaraanList($model) {
 
 function handleKendaraanCreate($model) {
     $userModel = new UserModel();
+    $userList = $userModel->getAllNoPagination();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
@@ -79,6 +80,7 @@ function handleKendaraanEdit($model) {
     }
 
     $userModel = new UserModel();
+    $userList = $userModel->getAllNoPagination();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [

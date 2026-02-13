@@ -1,8 +1,4 @@
 <?php $isEdit = isset($kendaraanData) && $kendaraanData; ?>
-<?php
-    $userModel = new UserModel();
-    $userList = $userModel->getAll(100, 0);
-?>
 
 <div class="card-header" style="border:none;padding:0;margin-bottom:20px;">
     <h3><?= $isEdit ? 'Edit Kendaraan' : 'Tambah Kendaraan' ?></h3>
